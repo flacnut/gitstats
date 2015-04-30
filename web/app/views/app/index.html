@@ -1,0 +1,6 @@
+<p><h3>Hi <%= username %></h3></p>
+<ul>
+<% for(var i=0; i< properties.stats.length; i++) {%>
+   <li><%= properties.stats[i].extension %> : <%= properties.stats[i].lines %></li>
+<% } %>
+</ul>
