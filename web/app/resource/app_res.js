@@ -9,12 +9,13 @@ var AppRes = module.exports = BaseRes.extend({
 
   all: function (req, res) {
     var client = new GitClient(),
-      stats = client.getStatistics(),
       user = {
-        username : req.params.username,
-        properties : stats
+        username: req.params.username
       };
 
-    res.render('app/index', user);
+    client.getStatistics(user.username, function (err, stats) {
+      user.properties = stats;
+      res.render('app/index', user);
+    });
   }
 });

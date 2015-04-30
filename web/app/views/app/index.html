@@ -1,6 +1,9 @@
 <p><h3>Hi <%= username %></h3></p>
-<ul>
+<div class="row">
 <% for(var i=0; i< properties.stats.length; i++) {%>
-   <li><%= properties.stats[i].extension %> : <%= properties.stats[i].lines %></li>
+   <div class="col-md-2">
+     <h3><%= properties.stats[i].language %></h3>
+     <%= properties.stats[i].lines %>
+   </div>
 <% } %>
-</ul>
+</div>

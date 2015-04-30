@@ -8,7 +8,9 @@
     "vows": "0.x.x",
     "cluster": "0.x.x",
     "express": "2.x.x",
+    "underscore": "x",
     "ejs": "0.x.x",
+    "async": "x",
     "github": "x"
   }
 }
