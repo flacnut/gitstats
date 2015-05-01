@@ -1,4 +1,6 @@
 var G = require('./githubClient.js'),
   c = new G();
 
-c.getStatistics('phanatic');
+c.getProfile('phanatic', function (e, u) {
+  console.log(e, u);
+});

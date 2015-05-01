@@ -1,5 +1,6 @@
 var Github = require('github'),
   _ = require('underscore'),
+  Languages = require('./languages.json'),
   async = require('async');
 
 var GitStats = function () {
@@ -31,6 +32,16 @@ GitStats.prototype.getRepos = function (userName, pageNumber, done) {
   });
 };
 
+GitStats.prototype.getProfile = function (userName, done) {
+  var self = this;
+
+  self.client.user.getFrom({
+    user: userName
+  }, function (err, user) {
+    return done(err, user);
+  });
+};
+
 GitStats.prototype.getCommits = function (userName, repoName, done) {
   var self = this,
     repoCommitStats = {
@@ -59,6 +70,10 @@ GitStats.prototype.getCommits = function (userName, repoName, done) {
                 return ic(err);
               }
               _.each(commit.files, function (file) {
+                if (file.filename.lastIndexOf('.') < 0) {
+                  return;
+                }
+
                 var extension = file.filename.substring(file.filename.lastIndexOf('.') +
                   1);
                 /*console.log(
@@ -95,14 +110,14 @@ GitStats.prototype.getCommit = function (userName, repoName, sha, done) {
   }, done);
 };
 
-GitStats.prototype.getStatistics = function (userName, done) {
+GitStats.prototype.getRepoPageStatistics = function (userName, pageNumber, done) {
   var self = this,
     stats = [];
 
   async.waterfall([
       function (callback) {
         //console.log('getting repos for ', userName);
-        self.getRepos(userName, 0, callback);
+        self.getRepos(userName, pageNumber, callback);
       },
       function (repos, callback) {
         async.each(repos, function (repo, cb) {
@@ -120,9 +135,7 @@ GitStats.prototype.getStatistics = function (userName, done) {
         return done(err, result);
       }
 
-      var totalStats = {
-
-        },
+      var totalStats = {},
         groupedStats = [];
 
 
@@ -136,25 +149,38 @@ GitStats.prototype.getStatistics = function (userName, done) {
         });
       });
 
-      for (var lang in totalStats) {
-        groupedStats.push({
-          language : lang,
-          lines : totalStats[lang]
-        });
-      }
-      console.log(groupedStats);
-      done(err, { stats : groupedStats});
+      return done(err, totalStats);
     });
+};
 
-  return {
-    stats: [{
-      extension: "js",
-      lines: 12567
-        }, {
-      extension: "cs",
-      lines: 125
-        }]
-  };
+GitStats.prototype.getStatistics = function (userName, done) {
+  var self = this;
+
+  async.waterfall([
+      function (callback) {
+        console.log('getting repos for ', userName);
+        self.getRepoPageStatistics(userName, 0, callback);
+      },
+      function (totalStats, callback) {
+        var groupedStats = [];
+        for (var lang in totalStats) {
+          groupedStats.push({
+            language: lang,
+            icon : Languages[lang],
+            lines: totalStats[lang]
+          });
+        }
+
+        groupedStats = _.sortBy(groupedStats, function (stat) {
+          return parseInt(stat.lines, 10);
+        }).reverse();
+
+        callback(null, {
+          stats: groupedStats
+        })
+    }
+    ],
+    done);
 };
 
 module.exports = GitStats;
