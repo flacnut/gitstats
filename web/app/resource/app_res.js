@@ -12,20 +12,26 @@ var AppRes = module.exports = BaseRes.extend({
     var client = new GitClient(),
       user = {
         username: req.params.username
-      };
+      },
+      token = '';
+
+    user.isAuthenticated = false;
+    if (req.isAuthenticated()) {
+      user.isAuthenticated = true;
+      token = req.user.token;
+    }
 
     async.waterfall([
       function (callback) {
-          client.getProfile(user.username, callback);
+          client.getProfile(user.username, token, callback);
       },
       function (gitHubUser, callback) {
           user.gitUser = gitHubUser;
-          client.getStatistics(user.username, callback);
+          client.getStatistics(user.username, token, callback);
       }
     ],
       function (err, stats) {
         if (err) {
-          console.log('load error ', err);
           if (err.code === 403) {
             return res.render('app/error', {
               "title": "Github API Rate limit exceeded",

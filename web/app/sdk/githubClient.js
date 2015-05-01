@@ -10,7 +10,18 @@ var GitStats = function () {
     'host': this.host,
     'port': 443
   });
-  
+  this.isAuthenticated = false;
+};
+
+GitStats.prototype.authenticateClient = function (token) {
+  var self = this;
+  if (token && token.length > 0) {
+    self.client.authenticate({
+      type: 'oauth',
+      token: token
+    });
+    this.isAuthenticated = true;
+  }
 };
 
 GitStats.prototype.getRepos = function (userName, pageNumber, done) {
@@ -28,9 +39,9 @@ GitStats.prototype.getRepos = function (userName, pageNumber, done) {
   });
 };
 
-GitStats.prototype.getProfile = function (userName, done) {
+GitStats.prototype.getProfile = function (userName, token, done) {
   var self = this;
-
+  self.authenticateClient(token);
   self.client.user.getFrom({
     user: userName
   }, function (err, user) {
@@ -140,7 +151,7 @@ GitStats.prototype.getCommit = function (userName, repoName, sha, done) {
 GitStats.prototype.getAllRepos = function (userName, done) {
   var self = this,
     hasNextPage = true,
-    pageNumber=0,
+    pageNumber = 0,
     allRepos = [];
 
   async.whilst(
@@ -168,7 +179,6 @@ GitStats.prototype.getAllRepos = function (userName, done) {
 GitStats.prototype.getRepoPageStatistics = function (userName, pageNumber, done) {
   var self = this,
     stats = [];
-
   async.waterfall([
       function (callback) {
         self.getAllRepos(userName, callback);
@@ -208,8 +218,9 @@ GitStats.prototype.getRepoPageStatistics = function (userName, pageNumber, done)
     });
 };
 
-GitStats.prototype.getStatistics = function (userName, done) {
+GitStats.prototype.getStatistics = function (userName, token, done) {
   var self = this;
+  self.authenticateClient(token);
 
   async.waterfall([
       function (callback) {

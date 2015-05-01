@@ -11,6 +11,8 @@
     "underscore": "x",
     "ejs": "0.x.x",
     "async": "x",
-    "github": "x"
+    "github": "x",
+    "passport": "x",
+    "passport-github": "x"
   }
 }

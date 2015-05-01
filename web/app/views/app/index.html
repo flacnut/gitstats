@@ -2,6 +2,9 @@
   <h1>
     <img class="gravatar" src="<%= gitUser.avatar_url %>"/>
     <small>Github statistics for </small><%= username %> (<%= gitUser.name %>)</h1>
+    <% if (!isAuthenticated){ %>
+    <a href="/auth/github">Sign in with Github</a>
+    <% } %>
 </div>
 <div class="row col-md-12">
 <% for(var i=0; i< properties.stats.length; i++) {%>

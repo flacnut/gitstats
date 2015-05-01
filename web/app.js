@@ -3,6 +3,7 @@ var PORT = (process.env.PORT || 3000)
 
 var fs = require('fs')
   , express = require('express')
+  , passport = require('passport')
   , app = express.createServer();
 
 // Config
@@ -16,6 +17,9 @@ app.configure(function(){
   app.use(express.methodOverride());
   app.use(express.cookieParser());
   app.use(express.static(__dirname + '/public'));
+  app.use(express.session({ secret: 'keyboard cat' }));
+  app.use(passport.initialize());
+  app.use(passport.session());
   app.use(app.router);
   app.use(express.errorHandler({dumpExceptions: true, showStack: true}));
 });
