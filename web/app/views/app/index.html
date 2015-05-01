@@ -1,7 +1,8 @@
 <div class="page-header">
   <h1>
-    <img class="gravatar" src="<%= gitUser.avatar_url %>"/>
-    <small>Github statistics for </small><%= username %> (<%= gitUser.name %>)</h1>
+    <% if (gitUser && gitUser.avatar_url){ %> <img class="gravatar" src="<%= gitUser.avatar_url %>"/><% } %>
+    <small>Github statistics for </small><%= username %>
+    <% if (gitUser && gitUser.name){ %> (<%= gitUser.name %>) <% } %></h1>
     <% if (!isAuthenticated){ %>
     <a href="/auth/github">Sign in with Github</a>
     <% } %>
