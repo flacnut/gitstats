@@ -8,6 +8,7 @@
   "sh": "shell",
   "pl": "perl",
   "md": "html",
+  "markdown": "html",
   "xml": "osx",
   "go": "google"
 }

@@ -27,15 +27,15 @@ var AppRes = module.exports = BaseRes.extend({
         if (err) {
           console.log('load error ', err);
           if (err.code === 403) {
-            return res.render('app/error' , {
+            return res.render('app/error', {
               "title": "Github API Rate limit exceeded",
               "body": "Looks like we were unable to generate this report anonymously. Maybe try signing in?"
             });
           } else if (err.code === 404) {
-              return res.render('app/error' , {
-                "title": "Unable to find user " + user.username,
-                "body": "Looks like we were unable to find this user. Maybe try correcting their user name and try again.?"
-              });
+            return res.render('app/error', {
+              "title": "Unable to find user " + user.username,
+              "body": "Looks like we were unable to find this user. Maybe try correcting their user name and try again.?"
+            });
           }
         }
         user.properties = stats;

@@ -10,18 +10,14 @@ var GitStats = function () {
     'host': this.host,
     'port': 443
   });
-  // 30ef8d7370f7c559c6fba671a386398abba3212c
-  this.client.authenticate({
-    type: 'oauth',
-    token: '30ef8d7370f7c559c6fba671a386398abba3212c'
-  });
+  
 };
 
 GitStats.prototype.getRepos = function (userName, pageNumber, done) {
   this.client.repos.getFromUser({
     user: userName,
     page: pageNumber,
-    per_page: 10,
+    per_page: 50,
     direction: 'asc'
   }, function (err, repos) {
     if (err) {
@@ -42,6 +38,41 @@ GitStats.prototype.getProfile = function (userName, done) {
   });
 };
 
+GitStats.prototype.getAllCommits = function (userName, repoName, done) {
+  var self = this,
+    commits = [],
+    pageNumber = 0,
+    hasNextPage = true;
+
+  async.whilst(
+    function () {
+      return hasNextPage !== undefined;
+    },
+    function (wCallback) {
+      self.client.repos.getCommits({
+        user: userName,
+        repo: repoName,
+        page: pageNumber,
+        per_page: 50,
+        author: userName
+      }, function (e, gitCommits) {
+        if (e) {
+          return wCallback(e);
+        }
+
+        commits = commits.concat(gitCommits);
+        hasNextPage = self.client.hasNextPage(gitCommits.meta.link);
+        pageNumber++;
+        return wCallback();
+      });
+    },
+    function (err) {
+      console.log(repoName, '/commits/', commits.length);
+      done(err, commits)
+    }
+  );
+};
+
 GitStats.prototype.getCommits = function (userName, repoName, done) {
   var self = this,
     repoCommitStats = {
@@ -51,11 +82,7 @@ GitStats.prototype.getCommits = function (userName, repoName, done) {
     };
   async.waterfall([
     function (callback) {
-      self.client.repos.getCommits({
-        user: userName,
-        repo: repoName,
-        author: userName
-      }, callback);
+      self.getAllCommits(userName, repoName, callback);
     },
     function (commits, callback) {
       //console.log('got commits for ', repoName);
@@ -110,16 +137,44 @@ GitStats.prototype.getCommit = function (userName, repoName, sha, done) {
   }, done);
 };
 
+GitStats.prototype.getAllRepos = function (userName, done) {
+  var self = this,
+    hasNextPage = true,
+    pageNumber=0,
+    allRepos = [];
+
+  async.whilst(
+    function () {
+      return hasNextPage !== undefined;
+    },
+    function (wCallback) {
+      self.getRepos(userName, pageNumber, function (e, gitRepos) {
+        if (e) {
+          return wCallback(e);
+        }
+        hasNextPage = undefined;
+        //self.client.hasNextPage(gitRepos.meta.link);
+        allRepos = allRepos.concat(gitRepos);
+        pageNumber++;
+        wCallback();
+      });
+    },
+    function (err) {
+      done(err, allRepos);
+    }
+  );
+};
+
 GitStats.prototype.getRepoPageStatistics = function (userName, pageNumber, done) {
   var self = this,
     stats = [];
 
   async.waterfall([
       function (callback) {
-        //console.log('getting repos for ', userName);
-        self.getRepos(userName, pageNumber, callback);
+        self.getAllRepos(userName, callback);
       },
       function (repos, callback) {
+        console.log('got repos', repos.length);
         async.each(repos, function (repo, cb) {
           //console.log('getting commits for repo ', repo.name);
           self.getCommits(userName, repo.name, function (err, repoStats) {
@@ -164,9 +219,14 @@ GitStats.prototype.getStatistics = function (userName, done) {
       function (totalStats, callback) {
         var groupedStats = [];
         for (var lang in totalStats) {
+
+          if (!Languages[lang]) {
+            continue;
+          }
+
           groupedStats.push({
             language: lang,
-            icon : Languages[lang],
+            icon: Languages[lang],
             lines: totalStats[lang]
           });
         }
