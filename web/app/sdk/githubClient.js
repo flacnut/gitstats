@@ -199,23 +199,47 @@ GitStats.prototype.getRepoPageStatistics = function (userName, pageNumber, done)
         console.log('error ', err);
         return done(err, result);
       }
-
-      var totalStats = {},
-        groupedStats = [];
-
-
-      _.each(stats, function (repoStats) {
-        _.each(repoStats.languages, function (lang) {
-          if (!totalStats[lang]) {
-            totalStats[lang] = 0;
-          }
-
-          totalStats[lang] += parseInt(repoStats.stats[lang], 10);
-        });
-      });
-
+      var totalStats = self.getTotalStatsByLanguage(stats);
       return done(err, totalStats);
     });
+};
+
+GitStats.prototype.getTotalStatsByLanguage = function (stats) {
+  var totalStats = {};
+
+  _.each(stats, function (repoStats) {
+    _.each(repoStats.languages, function (lang) {
+      if (!totalStats[lang]) {
+        totalStats[lang] = 0;
+      }
+
+      totalStats[lang] += parseInt(repoStats.stats[lang], 10);
+    });
+  });
+
+  return totalStats;
+};
+
+GitStats.prototype.prepareStatsForUX = function (totalStatsByLanguage) {
+  var groupedStats = [];
+  for (var lang in totalStatsByLanguage) {
+
+    if (!Languages[lang]) {
+      continue;
+    }
+
+    groupedStats.push({
+      language: lang,
+      icon: Languages[lang],
+      lines: totalStatsByLanguage[lang]
+    });
+  }
+
+  groupedStats = _.sortBy(groupedStats, function (stat) {
+    return parseInt(stat.lines, 10);
+  }).reverse();
+
+  return groupedStats;
 };
 
 GitStats.prototype.getStatistics = function (userName, token, done) {
@@ -228,23 +252,7 @@ GitStats.prototype.getStatistics = function (userName, token, done) {
         self.getRepoPageStatistics(userName, 0, callback);
       },
       function (totalStats, callback) {
-        var groupedStats = [];
-        for (var lang in totalStats) {
-
-          if (!Languages[lang]) {
-            continue;
-          }
-
-          groupedStats.push({
-            language: lang,
-            icon: Languages[lang],
-            lines: totalStats[lang]
-          });
-        }
-
-        groupedStats = _.sortBy(groupedStats, function (stat) {
-          return parseInt(stat.lines, 10);
-        }).reverse();
+        var groupedStats = self.prepareStatsForUX(totalStats);
 
         callback(null, {
           stats: groupedStats

@@ -19,13 +19,13 @@ var GithubRes = module.exports = BaseRes.extend({
 
     var settings = this.getSettings(),
       self = this;
-
+    console.log('settings are ', settings);
     // Use the GitHubStrategy within Passport.
     //   Strategies in Passport require a `verify` function, which accept
     //   credentials (in this case, an accessToken, refreshToken, and GitHub
     //   profile), and invoke a callback with a user object.
     passport.use(new GitHubStrategy({
-      clientID: settings.Github.clientId,
+      clientID: settings.Github.clientID,
       clientSecret: settings.Github.clientSecret,
       callbackURL: settings.Github.authCallbackUri
     }, self.onAuthenticated));

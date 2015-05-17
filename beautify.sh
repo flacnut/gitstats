@@ -13,3 +13,4 @@ if !(which js-beautify) then
 fi
 
 find  web/app/ -type f -name "*.js" | xargs $JSBEAUTIFY -q --config $PWD/jsbeautifyconfig.js -r
+find  web/test/ -type f -name "*.js" | xargs $JSBEAUTIFY -q --config $PWD/jsbeautifyconfig.js -r

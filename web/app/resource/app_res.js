@@ -27,7 +27,7 @@ var AppRes = module.exports = BaseRes.extend({
 
     user.isAuthenticated = false;
     if (req.isAuthenticated()) {
-      console.log('user ', username, 'is authenticated');
+      console.log('user ', user.username, 'is authenticated');
       user.isAuthenticated = true;
       token = req.user.token;
     } else {
