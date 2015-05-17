@@ -4,5 +4,8 @@
 
   "dependencies": {
     "js-beautify" : "x"
+  },
+  "scripts": {
+    "test": "./runtests.sh"
   }
 }
