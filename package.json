@@ -6,6 +6,6 @@
     "js-beautify" : "x"
   },
   "scripts": {
-    "test": "./runtests.sh"
+    "test": "mocha web/test"
   }
 }
