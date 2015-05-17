@@ -1,0 +1,7 @@
+{
+  "Github": {
+    "authCallbackUri": "https://gitstats.15.125.72.200.xip.io/auth/github/callback",
+    "clientID": "f20fd774e3a944f01451",
+    "clientSecret": "f9a1041dd38ba206dca15b092e2ecd9a0e71fa72"
+  }
+}
