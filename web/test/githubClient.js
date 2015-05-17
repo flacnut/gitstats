@@ -89,7 +89,7 @@ describe("github client tests", function (done) {
       },
       client = new GithubClient(),
       stats = client.prepareStatsForUX(statsByLanguage);
-      
+
     stats[0].language.should.be.equal('cs');
     stats[0].lines.should.be.equal(34);
   });

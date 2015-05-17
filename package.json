@@ -6,6 +6,7 @@
     "js-beautify" : "x"
   },
   "scripts": {
+    "postinstall" : "./installdeps.sh",
     "test": "./runtests.sh"
   }
 }
