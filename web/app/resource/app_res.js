@@ -1,6 +1,7 @@
 var BaseRes = require('./base_res'),
   GitClient = require('../sdk/githubClient.js'),
   async = require('async'),
+  fs = require('fs'),
   _ = require('underscore');
 
 var AppRes = module.exports = BaseRes.extend({
@@ -11,6 +12,7 @@ var AppRes = module.exports = BaseRes.extend({
   },
 
   home: function (req, res) {
+    fs.exists('../settings.json')
     res.render('app/home');
   },
 
